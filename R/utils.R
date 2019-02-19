@@ -113,13 +113,25 @@ find_vpu <- function(pnt){
 }
 
 find_state <- function(pnt){
-  state_data_sf <- sf::st_as_sf(map("state", plot = FALSE, fill = TRUE))
+  state_data_sf <- sf::st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
   res <- sf::st_transform(state_data_sf, sf::st_crs(pnt))
 
-  res_intersects <- sf::st_intersects(res, pnt)
+  res_intersects <- suppressMessages(sf::st_intersects(res, pnt))
 
   state <- res$ID[
             which(unlist(lapply(res_intersects, length)) > 0)]
+
+  if(length(state) == 0){
+    vpu <- find_vpu(pnt)
+
+    if(length(vpu) == 0){
+      stop(sf::st_as_text(pnt), " is outside any state and HUC-2 boundaries.")
+    }
+
+    state <- res$ID[sf::st_nearest_feature(pnt, res)]
+
+  }
+
   state
 }
 
