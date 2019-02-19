@@ -129,6 +129,7 @@ find_state <- function(pnt){
     }
 
     state <- res$ID[sf::st_nearest_feature(pnt, res)]
+    message(sf::st_as_text(pnt), " is outside of state boundaries. Returning the closest state.")
 
   }
 
